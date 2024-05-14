@@ -1,27 +1,30 @@
-'use client';
-
-import React from 'react';
+import Atualizar from '@/components/atualizar';
 
 type Acao = {
-  simbolo: string;
+  nome: string;
+  preco: number;
   atualizada: string;
 };
 
-export default function AcoesPage() {
-  const [acao, setAcao] = React.useState<Acao | null>(null);
+export const revalidate = 5;
 
-  React.useEffect(() => {
-    fetch('https://api.origamid.online/acoes/lua')
-      .then((response) => response.json())
-      .then((json) => setAcao(json));
-  }, []);
+export default async function AcoesPage() {
+  const response = await fetch('https://api.origamid.online/acoes/lua', {
+    next: {
+      // revalidate: 0,
+      tags: ['acoes'],
+    },
+  });
 
-  if (acao === null) return null;
+  const acao = (await response.json()) as Acao;
 
   return (
     <main>
-      <h1>{acao.simbolo}</h1>
-      <h2>{acao.atualizada}</h2>
+      <h1>Acoes</h1>
+      <Atualizar />
+      <h2>{acao.nome}</h2>
+      <p>Preço: {acao.preco}</p>
+      <p>Atualizada: {acao.atualizada}</p>
     </main>
   );
 }
