@@ -1,23 +1,25 @@
 'use client';
 
 import { adicionarProduto } from '@/actions/adicionar-produto';
-import { Produto } from '@/app/produtos/page';
+import { useFormState, useFormStatus } from 'react-dom';
+
+function Button() {
+  const status = useFormStatus();
+  return (
+    <button type="submit" disabled={status.pending}>
+      Adicionar
+    </button>
+  );
+}
 
 export default function AdicionarProduto() {
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data: Produto = {
-      nome: event.currentTarget.nome.value,
-      descricao: event.currentTarget.descricao.value,
-      preco: Number(event.currentTarget.preco.value),
-      estoque: Number(event.currentTarget.estoque.value),
-      importado: event.currentTarget.importado.checked ? 1 : 0,
-    };
-    await adicionarProduto(data);
-  }
+  const [state, formAction] = useFormState(adicionarProduto, {
+    errors: [],
+  });
+  console.log(state);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form action={formAction}>
       <label htmlFor="nome">Nome</label>
       <input type="text" id="nome" name="nome" />
       <label htmlFor="preco">Preço</label>
@@ -30,7 +32,12 @@ export default function AdicionarProduto() {
         <input type="checkbox" id="importado" name="importado" />
         Importado
       </label>
-      <button type="submit">Adicionar</button>
+      {state.errors.map((error, i) => (
+        <p style={{ color: 'red' }} key={i}>
+          {error}
+        </p>
+      ))}
+      <Button />
     </form>
   );
 }
